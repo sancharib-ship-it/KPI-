@@ -35,7 +35,7 @@ interface KpiDetailProps {
 
 export const KpiDetail: React.FC<KpiDetailProps> = ({ kpiId, filters }) => {
   const kpi = kpis.find((k) => k.id === kpiId);
-  const { enabled: simEnabled, overrides, setOverride } = useSimulation();
+  const { enabled: simEnabled, overrides, setOverride, cascadeEnabled, cascadedKpiIds, triggerCascade } = useSimulation();
 
   if (!kpi) return <div className="p-6 text-gray-400">Select a KPI to see details.</div>;
 
@@ -43,6 +43,14 @@ export const KpiDetail: React.FC<KpiDetailProps> = ({ kpiId, filters }) => {
   const simOverride = overrides[kpiId];
   const actual = simEnabled && simOverride?.actual !== undefined ? simOverride.actual : baseActual;
   const target = simEnabled && simOverride?.target !== undefined ? simOverride.target : kpi.target;
+
+  const isCascaded = simEnabled && cascadeEnabled && cascadedKpiIds.has(kpiId);
+
+  // Pre-compute base actuals for all KPIs (used by cascade engine)
+  const allBaseActuals: Record<string, number | null> = {};
+  for (const k of kpis) {
+    allBaseActuals[k.id] = latestActual(k.id, filters);
+  }
 
   const status = computeStatus(actual, target, kpi.higherIsBetter);
   const statusColor = STATUS_COLOR[status];
@@ -70,6 +78,11 @@ export const KpiDetail: React.FC<KpiDetailProps> = ({ kpiId, filters }) => {
             <span className="text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700 font-semibold">{kpi.layer}</span>
             <span className="text-xs px-2 py-0.5 rounded bg-purple-100 text-purple-700 font-semibold">{kpi.type}</span>
             <span className="text-xs text-gray-400">{kpi.cadence}</span>
+            {isCascaded && (
+              <span className="text-xs px-2 py-0.5 rounded bg-indigo-100 text-indigo-700 font-semibold" title="Auto-calculated from upstream KPI change">
+                🔗 Auto-cascaded
+              </span>
+            )}
           </div>
         </div>
         <div className="text-right">
@@ -83,9 +96,19 @@ export const KpiDetail: React.FC<KpiDetailProps> = ({ kpiId, filters }) => {
                   value={actual ?? ""}
                   onChange={(e) => {
                     const v = parseFloat(e.target.value);
-                    if (!isNaN(v)) setOverride(kpiId, { actual: v });
+                    if (!isNaN(v)) {
+                      const prev = actual ?? 0;
+                      setOverride(kpiId, { actual: v });
+                      if (cascadeEnabled && prev !== 0) {
+                        triggerCascade(kpiId, v, prev, allBaseActuals);
+                      }
+                    }
                   }}
-                  className="w-28 px-2 py-1 text-xl font-bold border border-purple-300 rounded bg-purple-50 text-right focus:outline-none focus:ring-1 focus:ring-purple-500"
+                  className={`w-28 px-2 py-1 text-xl font-bold border rounded text-right focus:outline-none focus:ring-1 ${
+                    isCascaded
+                      ? "border-indigo-300 bg-indigo-50 focus:ring-indigo-500"
+                      : "border-purple-300 bg-purple-50 focus:ring-purple-500"
+                  }`}
                   style={{ color: statusColor }}
                 />
               </div>

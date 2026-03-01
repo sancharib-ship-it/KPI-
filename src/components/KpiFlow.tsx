@@ -1,6 +1,7 @@
 import React from "react";
 import { kpis } from "../data/mockData";
 import { latestActual, computeStatus, type Filters, type StatusType } from "../lib/kpiLogic";
+import { useSimulation } from "../context/SimulationContext";
 
 const STATUS_BG: Record<StatusType, string> = {
   "On Track": "bg-green-500 border-green-600",
@@ -36,6 +37,8 @@ interface KpiFlowProps {
 }
 
 export const KpiFlow: React.FC<KpiFlowProps> = ({ filters, selectedKpiId, onSelectKpi }) => {
+  const { enabled: simEnabled, cascadeEnabled, cascadedKpiIds, overrides } = useSimulation();
+
   return (
     <div className="px-6 py-4">
       <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
@@ -45,20 +48,26 @@ export const KpiFlow: React.FC<KpiFlowProps> = ({ filters, selectedKpiId, onSele
         {FLOW_NODES.map((node, idx) => {
           const kpi = kpis.find((k) => k.id === node.id);
           if (!kpi) return null;
-          const actual = latestActual(node.id, filters);
-          const status = computeStatus(actual, kpi.target, kpi.higherIsBetter);
+          const baseActual = latestActual(node.id, filters);
+          const simOverride = overrides[node.id];
+          const actual = simEnabled && simOverride?.actual !== undefined ? simOverride.actual : baseActual;
+          const target = simEnabled && simOverride?.target !== undefined ? simOverride.target : kpi.target;
+          const status = computeStatus(actual, target, kpi.higherIsBetter);
           const isSelected = selectedKpiId === node.id;
+          const isCascaded = simEnabled && cascadeEnabled && cascadedKpiIds.has(node.id);
 
           return (
             <React.Fragment key={node.id}>
               <button
                 onClick={() => onSelectKpi(node.id)}
+                title={isCascaded ? `Auto-cascaded value` : undefined}
                 className={`flex flex-col items-center px-3 py-2 rounded-lg border-2 text-center min-w-[90px] transition-all ${STATUS_BG[status]} ${STATUS_TEXT[status]} ${
                   isSelected ? "ring-4 ring-blue-400 ring-offset-1 scale-105" : "hover:scale-105 hover:shadow-md"
-                }`}
+                } ${isCascaded ? "ring-2 ring-indigo-400 ring-offset-1 animate-pulse" : ""}`}
               >
                 <span className="text-xs font-bold leading-tight">{node.label}</span>
                 <span className="text-[10px] opacity-75 mt-0.5">{node.sub}</span>
+                {isCascaded && <span className="text-[10px] mt-0.5">🔗</span>}
               </button>
               {idx < FLOW_NODES.length - 1 && (
                 <svg className="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,6 +85,12 @@ export const KpiFlow: React.FC<KpiFlowProps> = ({ filters, selectedKpiId, onSele
             {s}
           </span>
         ))}
+        {simEnabled && cascadeEnabled && (
+          <span className="flex items-center gap-1 text-xs text-indigo-600">
+            <span className="text-[10px]">🔗</span>
+            Auto-cascaded
+          </span>
+        )}
       </div>
     </div>
   );
