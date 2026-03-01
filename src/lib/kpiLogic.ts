@@ -116,6 +116,7 @@ export function generateInterpretation(
   kpiId: string,
   actual: number | null,
   filters: Filters,
+  targetOverride?: number,
 ): { interpretation: string; implication: string } {
   const kpi = getKpi(kpiId);
   const resolvedActual = actual ?? latestActual(kpiId, filters);
@@ -126,8 +127,10 @@ export function generateInterpretation(
     };
   }
 
-  const status = computeStatus(resolvedActual, kpi.target, kpi.higherIsBetter);
-  const absGap = Math.abs(resolvedActual - kpi.target);
+  const effectiveTarget = targetOverride ?? kpi.target;
+
+  const status = computeStatus(resolvedActual, effectiveTarget, kpi.higherIsBetter);
+  const absGap = Math.abs(resolvedActual - effectiveTarget);
 
   const formatGapVal = (v: number): string => {
     const f = v.toFixed(kpi.decimals);
@@ -146,13 +149,13 @@ export function generateInterpretation(
       ? `performance is ${formatGapVal(absGap)} below benchmark`
       : `performance is ${formatGapVal(absGap)} above threshold`;
   } else {
-    const achievementStr = kpi.target !== 0 ? `${Math.round((resolvedActual / kpi.target) * 100)}%` : "N/A";
+    const achievementStr = effectiveTarget !== 0 ? `${Math.round((resolvedActual / effectiveTarget) * 100)}%` : "N/A";
     gapDesc = kpi.higherIsBetter
       ? `significantly below target at ${achievementStr} achievement`
       : `significantly over target at ${achievementStr} of budget`;
   }
 
-  const interpretation = `${kpi.name} is at ${formatValue(resolvedActual, kpi)} vs ${formatValue(kpi.target, kpi)} target — ${gapDesc}, classified as ${status}.`;
+  const interpretation = `${kpi.name} is at ${formatValue(resolvedActual, kpi)} vs ${formatValue(effectiveTarget, kpi)} target — ${gapDesc}, classified as ${status}.`;
 
   const nextLayer = NEXT_LAYER[kpi.layer];
   let implication: string;
