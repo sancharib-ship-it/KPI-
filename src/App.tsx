@@ -53,7 +53,7 @@ function App() {
     <div className="min-h-screen bg-slate-50 font-sans">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between flex-wrap gap-3">
           <div>
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
@@ -129,7 +129,7 @@ function App() {
           onSearchChange={setSearch}
         />
         {/* Tab bar */}
-        <div className="max-w-7xl mx-auto px-6 flex gap-2 border-t border-gray-100 pt-2 pb-1">
+        <div className="max-w-7xl mx-auto px-6 flex gap-2 border-t border-gray-100 pt-3 pb-2">
           {(["dashboard", "dictionary", "logicflow"] as TabOption[]).map((tab) => (
             <button
               key={tab}
@@ -166,7 +166,7 @@ function App() {
             </section>
 
             {/* Main Content: Table + Detail */}
-            <div className="flex gap-6 flex-col lg:flex-row">
+            <div className="flex gap-8 flex-col lg:flex-row">
               <div className="flex-1 min-w-0">
                 <KpiTable
                   filters={filters}
@@ -178,7 +178,7 @@ function App() {
 
               {selectedKpiId && (
                 <div className="w-full lg:w-[420px] flex-shrink-0">
-                  <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">KPI Detail</h2>
+                  <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">KPI Detail</h2>
                   <KpiDetail
                     kpiId={selectedKpiId}
                     filters={filters}

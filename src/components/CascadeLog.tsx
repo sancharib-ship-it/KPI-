@@ -10,7 +10,7 @@ export const CascadeLog: React.FC<CascadeLogProps> = ({ log }) => {
 
   if (log.length === 0) {
     return (
-      <div className="px-6 py-2 bg-indigo-50/60 border-b border-indigo-100 flex items-center gap-2">
+      <div className="max-w-7xl mx-auto px-6 py-2 bg-indigo-50/60 border-b border-indigo-100 flex items-center gap-2">
         <span className="text-indigo-400 text-xs">🔗</span>
         <span className="text-indigo-600 text-xs font-semibold">Linked Cascade Active</span>
         <span className="text-indigo-400 text-xs">— Edit an upstream KPI value to see cascade effects.</span>
@@ -28,7 +28,7 @@ export const CascadeLog: React.FC<CascadeLogProps> = ({ log }) => {
   }).reverse();
 
   return (
-    <div className="bg-indigo-50/60 border-b border-indigo-100">
+    <div className="max-w-7xl mx-auto bg-indigo-50/60 border-b border-indigo-100">
       <div
         className="px-6 py-2 flex items-center gap-2 cursor-pointer select-none"
         onClick={() => setCollapsed((c) => !c)}

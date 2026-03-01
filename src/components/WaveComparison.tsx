@@ -28,7 +28,7 @@ export const WaveComparison: React.FC<WaveComparisonProps> = ({ region }) => {
 
   return (
     <div>
-      <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-4">Wave Comparison</h2>
+      <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Wave Comparison</h2>
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <ResponsiveContainer width="100%" height={280}>
           <BarChart data={data} margin={{ top: 10, right: 30, bottom: 10, left: 0 }}>
