@@ -7,10 +7,24 @@ import type { KpiConfig } from "../data/mockData";
 type SortKey = "gap" | "layer" | "status";
 
 const STATUS_BADGE: Record<StatusType, string> = {
-  "On Track": "bg-green-100 text-green-800",
-  "Watch": "bg-yellow-100 text-yellow-800",
-  "Off Track": "bg-red-100 text-red-800",
-  "No Data": "bg-gray-100 text-gray-500",
+  "On Track": "text-emerald-700",
+  "Watch": "text-amber-700",
+  "Off Track": "text-red-600",
+  "No Data": "text-gray-500",
+};
+
+const STATUS_DOT: Record<StatusType, string> = {
+  "On Track": "bg-emerald-500",
+  "Watch": "bg-amber-400",
+  "Off Track": "bg-red-500",
+  "No Data": "bg-gray-400",
+};
+
+const LAYER_BADGE: Record<string, string> = {
+  Input: "bg-gray-100 text-gray-700",
+  Output: "bg-blue-50 text-blue-600",
+  Outcome: "bg-purple-50 text-purple-700",
+  Impact: "bg-emerald-50 text-emerald-700",
 };
 
 const LAYER_ORDER = { Input: 0, Output: 1, Outcome: 2, Impact: 3 };
@@ -75,21 +89,21 @@ export const KpiTable: React.FC<KpiTableProps> = ({ filters, search, selectedKpi
   }, [filters, search, sortKey, layerFilter, typeFilter, simEnabled, overrides]);
 
   return (
-    <div className="px-6 py-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">KPI Control Table</h2>
+    <div>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">KPI Control Table</h2>
         <div className="flex items-center gap-2">
           <select
             value={layerFilter}
             onChange={(e) => setLayerFilter(e.target.value)}
-            className="text-xs border border-gray-300 rounded px-2 py-1 bg-white text-gray-600"
+            className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-600 focus:outline-none"
           >
             {["All", "Input", "Output", "Outcome", "Impact"].map((l) => <option key={l}>{l}</option>)}
           </select>
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="text-xs border border-gray-300 rounded px-2 py-1 bg-white text-gray-600"
+            className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-600 focus:outline-none"
           >
             {["All", "Formative", "Summative"].map((t) => <option key={t}>{t}</option>)}
           </select>
@@ -98,7 +112,7 @@ export const KpiTable: React.FC<KpiTableProps> = ({ filters, search, selectedKpi
             <button
               key={sk}
               onClick={() => setSortKey(sk)}
-              className={`text-xs px-2 py-1 rounded ${sortKey === sk ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+              className={`text-xs px-2 py-1.5 rounded-lg ${sortKey === sk ? "bg-indigo-50 text-indigo-700" : "bg-gray-50 text-gray-500 hover:bg-gray-100"}`}
             >
               {sk === "gap" ? "Worst Gap" : sk.charAt(0).toUpperCase() + sk.slice(1)}
             </button>
@@ -106,42 +120,49 @@ export const KpiTable: React.FC<KpiTableProps> = ({ filters, search, selectedKpi
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
                 {["KPI", "Layer", "Type", "Cadence", "Target", "Actual", "Gap", "Status", "Source", "Decision Rule"].map((h) => (
-                  <th key={h} className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                  <th key={h} className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody>
               {rows.length === 0 ? (
                 <tr>
                   <td colSpan={10} className="px-4 py-8 text-center text-gray-400">No KPIs match the current filters</td>
                 </tr>
-              ) : rows.map(({ kpi, actual, target, gap, status }) => {
+              ) : rows.map(({ kpi, actual, target, gap, status }, rowIdx) => {
                 const isExpanded = expandedRules.has(kpi.id);
                 const isSelected = selectedKpiId === kpi.id;
                 const step = stepForKpi(kpi);
                 const isCascaded = simEnabled && cascadeEnabled && cascadedKpiIds.has(kpi.id);
+                const isEven = rowIdx % 2 === 0;
                 return (
                   <tr
                     key={kpi.id}
-                    className={`hover:bg-blue-50 cursor-pointer transition-colors ${isSelected ? "bg-blue-50 border-l-2 border-l-blue-500" : ""} ${isCascaded ? "bg-indigo-50" : ""}`}
+                    className={`cursor-pointer transition-colors border-b border-gray-100 ${
+                      isSelected ? "bg-indigo-50 border-l-2 border-l-indigo-400" :
+                      isCascaded ? "bg-indigo-50" :
+                      isEven ? "bg-white hover:bg-blue-50/40" : "bg-gray-50/50 hover:bg-blue-50/40"
+                    }`}
                     onClick={() => onSelectKpi(kpi.id)}
                   >
-                    <td className="px-3 py-2.5 font-medium text-blue-700 hover:underline whitespace-nowrap">
+                    <td className="px-3 py-4 font-medium text-indigo-600 hover:underline whitespace-nowrap">
                       {kpi.name}
                       {isCascaded && (
-                        <span title="Auto-calculated from upstream KPI change" className="ml-1 text-indigo-500 cursor-help">🔗</span>
+                        <span title="Auto-calculated from upstream KPI change" className="ml-1 text-indigo-400 cursor-help">🔗</span>
                       )}
                     </td>
-                    <td className="px-3 py-2.5 text-gray-600">{kpi.layer}</td>
-                    <td className="px-3 py-2.5 text-gray-600">{kpi.type}</td>
-                    <td className="px-3 py-2.5 text-gray-500 text-xs">{kpi.cadence}</td>
-                    <td className="px-3 py-2.5 text-gray-700 font-mono" onClick={(e) => simEnabled && e.stopPropagation()}>
+                    <td className="px-3 py-4">
+                      <span className={`text-xs rounded-full px-2 py-0.5 font-medium ${LAYER_BADGE[kpi.layer] ?? "bg-gray-100 text-gray-600"}`}>{kpi.layer}</span>
+                    </td>
+                    <td className="px-3 py-4 text-gray-500 text-xs">{kpi.type}</td>
+                    <td className="px-3 py-4 text-gray-400 text-xs">{kpi.cadence}</td>
+                    <td className="px-3 py-4 text-gray-600 font-mono text-xs" onClick={(e) => simEnabled && e.stopPropagation()}>
                       {simEnabled ? (
                         <input
                           type="number"
@@ -151,13 +172,13 @@ export const KpiTable: React.FC<KpiTableProps> = ({ filters, search, selectedKpi
                             const v = parseFloat(e.target.value);
                             if (!isNaN(v)) setOverride(kpi.id, { target: v });
                           }}
-                          className="w-24 px-1.5 py-0.5 text-xs border border-purple-300 rounded bg-purple-50 font-mono focus:outline-none focus:ring-1 focus:ring-purple-500"
+                          className="w-24 px-1.5 py-0.5 text-xs border border-purple-200 rounded-lg bg-purple-50 font-mono focus:outline-none focus:ring-1 focus:ring-purple-400"
                         />
                       ) : (
                         formatValue(kpi.target, kpi)
                       )}
                     </td>
-                    <td className="px-3 py-2.5 text-gray-900 font-semibold font-mono" onClick={(e) => simEnabled && e.stopPropagation()}>
+                    <td className="px-3 py-4 text-gray-800 font-semibold font-mono text-xs" onClick={(e) => simEnabled && e.stopPropagation()}>
                       {simEnabled ? (
                         <div className="relative inline-flex items-center gap-1">
                           <input
@@ -174,10 +195,10 @@ export const KpiTable: React.FC<KpiTableProps> = ({ filters, search, selectedKpi
                                 }
                               }
                             }}
-                            className={`w-24 px-1.5 py-0.5 text-xs border rounded font-mono focus:outline-none focus:ring-1 ${
+                            className={`w-24 px-1.5 py-0.5 text-xs border rounded-lg font-mono focus:outline-none focus:ring-1 ${
                               isCascaded
-                                ? "border-indigo-300 bg-indigo-50 focus:ring-indigo-500"
-                                : "border-purple-300 bg-purple-50 focus:ring-purple-500"
+                                ? "border-indigo-200 bg-indigo-50 focus:ring-indigo-400"
+                                : "border-purple-200 bg-purple-50 focus:ring-purple-400"
                             }`}
                           />
                           {isCascaded && (
@@ -188,17 +209,25 @@ export const KpiTable: React.FC<KpiTableProps> = ({ filters, search, selectedKpi
                         formatValue(actual, kpi)
                       )}
                     </td>
-                    <td className={`px-3 py-2.5 font-mono font-semibold ${gap !== null && gap >= 0 ? "text-green-600" : "text-red-500"}`}>
+                    <td className={`px-3 py-4 font-mono font-medium text-xs ${gap !== null && gap >= 0 ? "text-emerald-600" : "text-red-500"}`}>
                       {gap !== null ? (gap >= 0 ? "+" : "") + formatValue(gap, kpi) : "—"}
                     </td>
-                    <td className="px-3 py-2.5">
-                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${STATUS_BADGE[status]}`}>{status}</span>
+                    <td className="px-3 py-4">
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${STATUS_BADGE[status]}`}>
+                        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${STATUS_DOT[status]}`} />
+                        {status}
+                      </span>
                     </td>
-                    <td className="px-3 py-2.5 text-gray-500 text-xs max-w-[120px] truncate">{kpi.source}</td>
-                    <td className="px-3 py-2.5 text-xs text-gray-500 max-w-[200px]" onClick={(e) => e.stopPropagation()}>
-                      <span className={isExpanded ? "" : "line-clamp-1"}>{kpi.decisionRule}</span>
+                    <td className="px-3 py-4 text-gray-400 text-xs max-w-[120px] truncate">{kpi.source}</td>
+                    <td className="px-3 py-4 text-xs text-gray-500 max-w-[200px]" onClick={(e) => e.stopPropagation()}>
+                      <span
+                        className={isExpanded ? "" : "line-clamp-1"}
+                        title={kpi.decisionRule}
+                      >
+                        {kpi.decisionRule}
+                      </span>
                       <button
-                        className="text-blue-500 hover:underline ml-1"
+                        className="text-indigo-400 hover:text-indigo-600 ml-1 text-xs"
                         onClick={(e) => {
                           e.stopPropagation();
                           setExpandedRules((prev) => {
