@@ -8,6 +8,7 @@ import { WaveComparison } from "./components/WaveComparison";
 import { KpiDictionary } from "./components/KpiDictionary";
 import type { WaveLabel, RegionLabel, ChannelLabel } from "./data/mockData";
 import { kpis } from "./data/mockData";
+import { useSimulation } from "./context/SimulationContext";
 
 type WaveOption = "All" | WaveLabel;
 type RegionOption = "All" | RegionLabel;
@@ -21,6 +22,7 @@ function App() {
   const [channel, setChannel] = useState<ChannelOption>("All");
   const [search, setSearch] = useState("");
   const [selectedKpiId, setSelectedKpiId] = useState<string | null>("market-share");
+  const { enabled: simEnabled, setEnabled: setSimEnabled, resetOverrides } = useSimulation();
 
   const selectedKpi = selectedKpiId ? kpis.find((k) => k.id === selectedKpiId) : null;
   const isOutputKpi = selectedKpi?.layer === "Output";
@@ -29,6 +31,13 @@ function App() {
     wave,
     region,
     channel: isOutputKpi ? channel : "All" as ChannelOption,
+  };
+
+  const handleToggleSim = () => {
+    if (simEnabled) {
+      resetOverrides();
+    }
+    setSimEnabled(!simEnabled);
   };
 
   return (
@@ -47,10 +56,37 @@ function App() {
               </div>
             </div>
           </div>
-          <div className="text-right">
+          <div className="flex items-center gap-3">
+            {simEnabled && (
+              <button
+                onClick={() => { resetOverrides(); }}
+                className="px-3 py-1.5 text-xs font-semibold rounded-md bg-amber-100 text-amber-800 border border-amber-300 hover:bg-amber-200 transition-colors"
+              >
+                ↩ Reset to Defaults
+              </button>
+            )}
+            <button
+              onClick={handleToggleSim}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-md border transition-colors ${
+                simEnabled
+                  ? "bg-purple-600 text-white border-purple-600 hover:bg-purple-700"
+                  : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+              }`}
+            >
+              🔬 Simulation Mode
+            </button>
             <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Input → Output → Outcome → Impact</span>
           </div>
         </div>
+
+        {/* Simulation Mode Banner */}
+        {simEnabled && (
+          <div className="px-6 py-2 bg-purple-50 border-b border-purple-200 flex items-center gap-2">
+            <span className="text-purple-700 text-xs font-semibold">🔬 Simulation Mode Active</span>
+            <span className="text-purple-500 text-xs">— Edit Actual and Target values to explore scenarios in real-time.</span>
+          </div>
+        )}
+
         <FiltersBar
           wave={wave}
           region={region}
@@ -80,57 +116,60 @@ function App() {
         </div>
       </header>
 
-      {activeTab === "dashboard" ? (
-        <main className="max-w-screen-2xl mx-auto">
-          {/* Executive Scorecard */}
-          <section className="border-b border-gray-200">
-            <div className="px-6 pt-4">
-              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Executive Scorecard</h2>
-            </div>
-            <Scorecard filters={filters} onSelectKpi={setSelectedKpiId} />
-          </section>
+      {/* Simulation mode outer border */}
+      <div className={simEnabled ? "ring-4 ring-purple-400 ring-inset" : ""}>
+        {activeTab === "dashboard" ? (
+          <main className="max-w-screen-2xl mx-auto">
+            {/* Executive Scorecard */}
+            <section className="border-b border-gray-200">
+              <div className="px-6 pt-4">
+                <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Executive Scorecard</h2>
+              </div>
+              <Scorecard filters={filters} onSelectKpi={setSelectedKpiId} />
+            </section>
 
-          {/* KPI Architecture Flow */}
-          <section className="border-b border-gray-200 bg-white">
-            <KpiFlow
-              filters={filters}
-              selectedKpiId={selectedKpiId}
-              onSelectKpi={setSelectedKpiId}
-            />
-          </section>
-
-          {/* Main Content: Table + Detail */}
-          <div className="flex gap-0 lg:gap-0 flex-col lg:flex-row">
-            <div className="flex-1 min-w-0 border-r border-gray-200">
-              <KpiTable
+            {/* KPI Architecture Flow */}
+            <section className="border-b border-gray-200 bg-white">
+              <KpiFlow
                 filters={filters}
-                search={search}
                 selectedKpiId={selectedKpiId}
                 onSelectKpi={setSelectedKpiId}
               />
-            </div>
+            </section>
 
-            {selectedKpiId && (
-              <div className="w-full lg:w-[420px] flex-shrink-0 px-6 py-4">
-                <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">KPI Detail</h2>
-                <KpiDetail
-                  kpiId={selectedKpiId}
+            {/* Main Content: Table + Detail */}
+            <div className="flex gap-0 lg:gap-0 flex-col lg:flex-row">
+              <div className="flex-1 min-w-0 border-r border-gray-200">
+                <KpiTable
                   filters={filters}
+                  search={search}
+                  selectedKpiId={selectedKpiId}
+                  onSelectKpi={setSelectedKpiId}
                 />
               </div>
-            )}
-          </div>
 
-          {/* Wave Comparison */}
-          <section className="border-t border-gray-200 bg-white">
-            <WaveComparison region={region} />
-          </section>
-        </main>
-      ) : (
-        <main>
-          <KpiDictionary />
-        </main>
-      )}
+              {selectedKpiId && (
+                <div className="w-full lg:w-[420px] flex-shrink-0 px-6 py-4">
+                  <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">KPI Detail</h2>
+                  <KpiDetail
+                    kpiId={selectedKpiId}
+                    filters={filters}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Wave Comparison */}
+            <section className="border-t border-gray-200 bg-white">
+              <WaveComparison region={region} />
+            </section>
+          </main>
+        ) : (
+          <main>
+            <KpiDictionary />
+          </main>
+        )}
+      </div>
 
       <footer className="text-center py-4 text-xs text-gray-400 border-t border-gray-200 mt-4 bg-white">
         Samsung Galaxy S KPI Dashboard · Marketing Measurement System · Confidential

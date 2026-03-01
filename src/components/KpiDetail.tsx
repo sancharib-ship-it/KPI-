@@ -9,6 +9,7 @@ import {
   formatValue, computeStatus, latestActual, generateInterpretation, type Filters, type StatusType,
 } from "../lib/kpiLogic";
 import type { KpiConfig } from "../data/mockData";
+import { useSimulation } from "../context/SimulationContext";
 
 const STATUS_COLOR: Record<StatusType, string> = {
   "On Track": "#22c55e",
@@ -21,6 +22,12 @@ function makeFormatter(kpi: KpiConfig) {
   return (v: number | undefined): [string, string] => [formatValue(v ?? null, kpi), kpi.name];
 }
 
+function stepForKpi(kpi: KpiConfig): number {
+  if (kpi.unit === "currency") return 100000;
+  if (kpi.unit === "ratio") return 0.01;
+  return 0.1;
+}
+
 interface KpiDetailProps {
   kpiId: string;
   filters: Filters;
@@ -28,10 +35,16 @@ interface KpiDetailProps {
 
 export const KpiDetail: React.FC<KpiDetailProps> = ({ kpiId, filters }) => {
   const kpi = kpis.find((k) => k.id === kpiId);
+  const { enabled: simEnabled, overrides, setOverride } = useSimulation();
+
   if (!kpi) return <div className="p-6 text-gray-400">Select a KPI to see details.</div>;
 
-  const actual = latestActual(kpiId, filters);
-  const status = computeStatus(actual, kpi.target, kpi.higherIsBetter);
+  const baseActual = latestActual(kpiId, filters);
+  const simOverride = overrides[kpiId];
+  const actual = simEnabled && simOverride?.actual !== undefined ? simOverride.actual : baseActual;
+  const target = simEnabled && simOverride?.target !== undefined ? simOverride.target : kpi.target;
+
+  const status = computeStatus(actual, target, kpi.higherIsBetter);
   const statusColor = STATUS_COLOR[status];
 
   const trendData = getTrendData(kpiId, filters);
@@ -44,7 +57,8 @@ export const KpiDetail: React.FC<KpiDetailProps> = ({ kpiId, filters }) => {
   const breakdownKey = hasChannelData ? "channel" : "region";
 
   const tooltipFormatter = makeFormatter(kpi);
-  const { interpretation, implication } = generateInterpretation(kpiId, actual, filters);
+  const { interpretation, implication } = generateInterpretation(kpiId, actual, filters, simEnabled ? target : undefined);
+  const step = stepForKpi(kpi);
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-5">
@@ -59,8 +73,42 @@ export const KpiDetail: React.FC<KpiDetailProps> = ({ kpiId, filters }) => {
           </div>
         </div>
         <div className="text-right">
-          <div className="text-2xl font-bold" style={{ color: statusColor }}>{formatValue(actual, kpi)}</div>
-          <div className="text-xs text-gray-400 mt-0.5">Target: {formatValue(kpi.target, kpi)}</div>
+          {simEnabled ? (
+            <div className="space-y-1">
+              <div>
+                <label className="text-xs text-gray-400 block">Actual</label>
+                <input
+                  type="number"
+                  step={step}
+                  value={actual ?? ""}
+                  onChange={(e) => {
+                    const v = parseFloat(e.target.value);
+                    if (!isNaN(v)) setOverride(kpiId, { actual: v });
+                  }}
+                  className="w-28 px-2 py-1 text-xl font-bold border border-purple-300 rounded bg-purple-50 text-right focus:outline-none focus:ring-1 focus:ring-purple-500"
+                  style={{ color: statusColor }}
+                />
+              </div>
+              <div>
+                <label className="text-xs text-gray-400 block">Target</label>
+                <input
+                  type="number"
+                  step={step}
+                  value={target}
+                  onChange={(e) => {
+                    const v = parseFloat(e.target.value);
+                    if (!isNaN(v)) setOverride(kpiId, { target: v });
+                  }}
+                  className="w-28 px-2 py-1 text-sm border border-purple-300 rounded bg-purple-50 text-right focus:outline-none focus:ring-1 focus:ring-purple-500"
+                />
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="text-2xl font-bold" style={{ color: statusColor }}>{formatValue(actual, kpi)}</div>
+              <div className="text-xs text-gray-400 mt-0.5">Target: {formatValue(kpi.target, kpi)}</div>
+            </>
+          )}
         </div>
       </div>
 
@@ -97,7 +145,7 @@ export const KpiDetail: React.FC<KpiDetailProps> = ({ kpiId, filters }) => {
                 <XAxis dataKey="date" tick={{ fontSize: 11 }} />
                 <YAxis tick={{ fontSize: 11 }} />
                 <Tooltip formatter={tooltipFormatter} />
-                <ReferenceLine y={kpi.target} stroke="#3b82f6" strokeDasharray="4 4" label={{ value: "Target", fontSize: 10, fill: "#3b82f6" }} />
+                <ReferenceLine y={target} stroke="#3b82f6" strokeDasharray="4 4" label={{ value: "Target", fontSize: 10, fill: "#3b82f6" }} />
                 <Line type="monotone" dataKey="value" stroke={statusColor} strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
               </LineChart>
             </ResponsiveContainer>
@@ -108,7 +156,7 @@ export const KpiDetail: React.FC<KpiDetailProps> = ({ kpiId, filters }) => {
                 <XAxis dataKey="date" tick={{ fontSize: 11 }} />
                 <YAxis tick={{ fontSize: 11 }} />
                 <Tooltip formatter={tooltipFormatter} />
-                <ReferenceLine y={kpi.target} stroke="#3b82f6" strokeDasharray="4 4" label={{ value: "Target", fontSize: 10, fill: "#3b82f6" }} />
+                <ReferenceLine y={target} stroke="#3b82f6" strokeDasharray="4 4" label={{ value: "Target", fontSize: 10, fill: "#3b82f6" }} />
                 <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                   {trendData.map((_, idx) => (
                     <Cell key={idx} fill={idx === trendData.length - 1 ? statusColor : "#93c5fd"} />

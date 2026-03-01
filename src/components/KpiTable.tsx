@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from "react";
 import { kpis } from "../data/mockData";
 import { latestActual, computeGap, computeStatus, formatValue, type Filters, type StatusType } from "../lib/kpiLogic";
+import { useSimulation } from "../context/SimulationContext";
+import type { KpiConfig } from "../data/mockData";
 
 type SortKey = "gap" | "layer" | "status";
 
@@ -14,6 +16,12 @@ const STATUS_BADGE: Record<StatusType, string> = {
 const LAYER_ORDER = { Input: 0, Output: 1, Outcome: 2, Impact: 3 };
 const STATUS_ORDER: Record<StatusType, number> = { "Off Track": 0, "Watch": 1, "On Track": 2, "No Data": 3 };
 
+function stepForKpi(kpi: KpiConfig): number {
+  if (kpi.unit === "currency") return 100000;
+  if (kpi.unit === "ratio") return 0.01;
+  return 0.1;
+}
+
 interface KpiTableProps {
   filters: Filters;
   search: string;
@@ -26,6 +34,7 @@ export const KpiTable: React.FC<KpiTableProps> = ({ filters, search, selectedKpi
   const [layerFilter, setLayerFilter] = useState<string>("All");
   const [typeFilter, setTypeFilter] = useState<string>("All");
   const [expandedRules, setExpandedRules] = useState<Set<string>>(new Set());
+  const { enabled: simEnabled, overrides, setOverride } = useSimulation();
 
   const rows = useMemo(() => {
     return kpis
@@ -36,10 +45,13 @@ export const KpiTable: React.FC<KpiTableProps> = ({ filters, search, selectedKpi
         return true;
       })
       .map((k) => {
-        const actual = latestActual(k.id, filters);
-        const gap = computeGap(actual, k.target);
-        const status = computeStatus(actual, k.target, k.higherIsBetter);
-        return { kpi: k, actual, gap, status };
+        const baseActual = latestActual(k.id, filters);
+        const simOverride = overrides[k.id];
+        const actual = simEnabled && simOverride?.actual !== undefined ? simOverride.actual : baseActual;
+        const target = simEnabled && simOverride?.target !== undefined ? simOverride.target : k.target;
+        const gap = computeGap(actual, target);
+        const status = computeStatus(actual, target, k.higherIsBetter);
+        return { kpi: k, actual, baseActual, target, gap, status };
       })
       .sort((a, b) => {
         if (sortKey === "gap") {
@@ -51,7 +63,7 @@ export const KpiTable: React.FC<KpiTableProps> = ({ filters, search, selectedKpi
         if (sortKey === "status") return STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
         return 0;
       });
-  }, [filters, search, sortKey, layerFilter, typeFilter]);
+  }, [filters, search, sortKey, layerFilter, typeFilter, simEnabled, overrides]);
 
   return (
     <div className="px-6 py-4">
@@ -100,9 +112,10 @@ export const KpiTable: React.FC<KpiTableProps> = ({ filters, search, selectedKpi
                 <tr>
                   <td colSpan={10} className="px-4 py-8 text-center text-gray-400">No KPIs match the current filters</td>
                 </tr>
-              ) : rows.map(({ kpi, actual, gap, status }) => {
+              ) : rows.map(({ kpi, actual, target, gap, status }) => {
                 const isExpanded = expandedRules.has(kpi.id);
                 const isSelected = selectedKpiId === kpi.id;
+                const step = stepForKpi(kpi);
                 return (
                   <tr
                     key={kpi.id}
@@ -113,8 +126,38 @@ export const KpiTable: React.FC<KpiTableProps> = ({ filters, search, selectedKpi
                     <td className="px-3 py-2.5 text-gray-600">{kpi.layer}</td>
                     <td className="px-3 py-2.5 text-gray-600">{kpi.type}</td>
                     <td className="px-3 py-2.5 text-gray-500 text-xs">{kpi.cadence}</td>
-                    <td className="px-3 py-2.5 text-gray-700 font-mono">{formatValue(kpi.target, kpi)}</td>
-                    <td className="px-3 py-2.5 text-gray-900 font-semibold font-mono">{formatValue(actual, kpi)}</td>
+                    <td className="px-3 py-2.5 text-gray-700 font-mono" onClick={(e) => simEnabled && e.stopPropagation()}>
+                      {simEnabled ? (
+                        <input
+                          type="number"
+                          step={step}
+                          value={target}
+                          onChange={(e) => {
+                            const v = parseFloat(e.target.value);
+                            if (!isNaN(v)) setOverride(kpi.id, { target: v });
+                          }}
+                          className="w-24 px-1.5 py-0.5 text-xs border border-purple-300 rounded bg-purple-50 font-mono focus:outline-none focus:ring-1 focus:ring-purple-500"
+                        />
+                      ) : (
+                        formatValue(kpi.target, kpi)
+                      )}
+                    </td>
+                    <td className="px-3 py-2.5 text-gray-900 font-semibold font-mono" onClick={(e) => simEnabled && e.stopPropagation()}>
+                      {simEnabled ? (
+                        <input
+                          type="number"
+                          step={step}
+                          value={actual ?? ""}
+                          onChange={(e) => {
+                            const v = parseFloat(e.target.value);
+                            if (!isNaN(v)) setOverride(kpi.id, { actual: v });
+                          }}
+                          className="w-24 px-1.5 py-0.5 text-xs border border-purple-300 rounded bg-purple-50 font-mono focus:outline-none focus:ring-1 focus:ring-purple-500"
+                        />
+                      ) : (
+                        formatValue(actual, kpi)
+                      )}
+                    </td>
                     <td className={`px-3 py-2.5 font-mono font-semibold ${gap !== null && gap >= 0 ? "text-green-600" : "text-red-500"}`}>
                       {gap !== null ? (gap >= 0 ? "+" : "") + formatValue(gap, kpi) : "—"}
                     </td>
