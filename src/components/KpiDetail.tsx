@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ReferenceLine, ResponsiveContainer, Cell,
@@ -47,10 +47,13 @@ export const KpiDetail: React.FC<KpiDetailProps> = ({ kpiId, filters }) => {
   const isCascaded = simEnabled && cascadeEnabled && cascadedKpiIds.has(kpiId);
 
   // Pre-compute base actuals for all KPIs (used by cascade engine)
-  const allBaseActuals: Record<string, number | null> = {};
-  for (const k of kpis) {
-    allBaseActuals[k.id] = latestActual(k.id, filters);
-  }
+  const allBaseActuals = useMemo(() => {
+    const map: Record<string, number | null> = {};
+    for (const k of kpis) {
+      map[k.id] = latestActual(k.id, filters);
+    }
+    return map;
+  }, [filters]);
 
   const status = computeStatus(actual, target, kpi.higherIsBetter);
   const statusColor = STATUS_COLOR[status];

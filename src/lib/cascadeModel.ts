@@ -99,7 +99,9 @@ export function calculateCascade(
   visited.add(changedKpiId);
 
   while (queue.length > 0) {
-    const { kpiId: sourceId, pctChange: sourcePctChange } = queue.shift()!;
+    const item = queue.shift();
+    if (!item) break;
+    const { kpiId: sourceId, pctChange: sourcePctChange } = item;
 
     const rels = cascadeRelationships.filter((r) => r.sourceKpiId === sourceId);
 
