@@ -17,6 +17,7 @@ export interface KpiConfig {
   decisionRule: string;
   unit: "%" | "pts" | "ratio" | "currency";
   decimals: number;
+  description: string;
 }
 
 export interface Observation {
@@ -41,6 +42,7 @@ export const kpis: KpiConfig[] = [
     decisionRule: "If over budget by >5%, flag for reallocation review with CMO.",
     unit: "currency",
     decimals: 0,
+    description: "Total budget allocated to the Samsung Galaxy S launch campaign across all channels and waves. Serves as the primary input constraint for media planning.",
   },
   {
     id: "budget-allocation",
@@ -54,6 +56,7 @@ export const kpis: KpiConfig[] = [
     decisionRule: "If W1 share drops below 55%, re-evaluate launch momentum strategy.",
     unit: "%",
     decimals: 1,
+    description: "Percentage of total campaign budget allocated to Wave 1 (launch phase). A higher W1 share ensures sufficient investment to drive awareness and momentum at launch.",
   },
   {
     id: "reach-1plus",
@@ -67,6 +70,7 @@ export const kpis: KpiConfig[] = [
     decisionRule: "If <68%, expand premium inventory buys; review audience targeting segments.",
     unit: "%",
     decimals: 1,
+    description: "Percentage of the premium target audience exposed to at least one campaign impression. Indicates breadth of campaign awareness coverage across the priority consumer segment.",
   },
   {
     id: "reach-3plus",
@@ -80,6 +84,7 @@ export const kpis: KpiConfig[] = [
     decisionRule: "If <45%, increase frequency caps on premium segments or add retargeting layer.",
     unit: "%",
     decimals: 1,
+    description: "Percentage of the target audience exposed to three or more campaign impressions. A proxy for effective frequency — the threshold at which messaging drives meaningful recall and consideration.",
   },
   {
     id: "vtr",
@@ -93,6 +98,7 @@ export const kpis: KpiConfig[] = [
     decisionRule: "If <36%, A/B test shorter cuts (6s bumpers) or revise first-5-second hook.",
     unit: "%",
     decimals: 1,
+    description: "Percentage of video ad impressions watched through to completion. Measures creative quality and audience relevance — higher completion rates signal that the content resonates and is not skipped.",
   },
   {
     id: "feature-engagement",
@@ -106,6 +112,7 @@ export const kpis: KpiConfig[] = [
     decisionRule: "If <2.3%, promote feature-specific CTAs and demo videos more prominently.",
     unit: "%",
     decimals: 2,
+    description: "Rate at which site visitors interact with AI and camera feature content on Samsung.com. Reflects consumer curiosity and intent depth beyond passive ad exposure.",
   },
   {
     id: "branded-search",
@@ -119,6 +126,7 @@ export const kpis: KpiConfig[] = [
     decisionRule: "If <25%, increase SEM brand bidding and activate influencer unboxing content.",
     unit: "%",
     decimals: 1,
+    description: "Percentage increase in branded search queries for Samsung Galaxy S relative to the pre-campaign baseline. Indicates how effectively the campaign is driving active consumer interest and search intent.",
   },
   {
     id: "innovation-lift",
@@ -132,6 +140,7 @@ export const kpis: KpiConfig[] = [
     decisionRule: "If <4 pts, amplify AI feature storytelling in Wave 2 creative.",
     unit: "pts",
     decimals: 1,
+    description: "Change in the percentage of consumers who associate Samsung Galaxy S with innovation leadership, measured via brand tracker pre and post each wave. Captures the brand perception shift driven by AI and technology messaging.",
   },
   {
     id: "camera-lift",
@@ -145,6 +154,7 @@ export const kpis: KpiConfig[] = [
     decisionRule: "If <3 pts after Wave 1, increase camera demo content in Wave 2.",
     unit: "pts",
     decimals: 1,
+    description: "Change in the percentage of consumers who associate Samsung Galaxy S with having the best camera, tracked pre and post campaign wave. A key differentiator metric given the camera-centric creative strategy.",
   },
   {
     id: "consideration-apple",
@@ -158,6 +168,7 @@ export const kpis: KpiConfig[] = [
     decisionRule: "If <2 pts, activate competitive comparative messaging in digital and CRM.",
     unit: "pts",
     decimals: 1,
+    description: "Change in consideration scores for Samsung Galaxy S among consumers who also consider Apple, measured pre and post wave. Tracks the campaign's ability to compete directly for premium smartphone switchers.",
   },
   {
     id: "switching-intent",
@@ -171,6 +182,7 @@ export const kpis: KpiConfig[] = [
     decisionRule: "If <1.5 pts, deploy targeted Apple-switcher offer via CRM and retail.",
     unit: "pts",
     decimals: 1,
+    description: "Change in stated intention to switch from Apple to Samsung Galaxy S, measured among current Apple users pre and post wave. The most direct behavioural signal of competitive conquest potential.",
   },
   {
     id: "purchase-intent",
@@ -184,6 +196,7 @@ export const kpis: KpiConfig[] = [
     decisionRule: "If <3 pts, increase bottom-funnel activations: promotions, retail endcaps.",
     unit: "pts",
     decimals: 1,
+    description: "Change in the percentage of target consumers stating intent to purchase a Samsung Galaxy S within the next three months, tracked pre and post wave. The primary leading indicator of short-term commercial impact.",
   },
   {
     id: "market-share",
@@ -197,6 +210,7 @@ export const kpis: KpiConfig[] = [
     decisionRule: "If <0.8 pts at end of Wave 1, escalate to exec team for commercial review.",
     unit: "pts",
     decimals: 1,
+    description: "Change in Samsung's share of the premium smartphone segment (≥$800) measured post-campaign versus the pre-campaign baseline. The most direct market-level measure of whether the campaign shifted purchase behaviour at scale.",
   },
   {
     id: "romi",
@@ -210,6 +224,7 @@ export const kpis: KpiConfig[] = [
     decisionRule: "If <1.5, shift budget toward highest-ROMI channels identified in MMM model.",
     unit: "ratio",
     decimals: 2,
+    description: "Return on Marketing Investment — ratio of incremental revenue attributed to the campaign versus total campaign spend, modelled via Marketing Mix Modelling. The ultimate measure of campaign financial efficiency.",
   },
 ];
 
