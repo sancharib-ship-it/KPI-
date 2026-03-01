@@ -7,6 +7,7 @@ import { KpiDetail } from "./components/KpiDetail";
 import { WaveComparison } from "./components/WaveComparison";
 import { KpiDictionary } from "./components/KpiDictionary";
 import { CascadeLog } from "./components/CascadeLog";
+import { LogicFlow } from "./components/LogicFlow";
 import type { WaveLabel, RegionLabel, ChannelLabel } from "./data/mockData";
 import { kpis } from "./data/mockData";
 import { useSimulation } from "./context/SimulationContext";
@@ -14,7 +15,7 @@ import { useSimulation } from "./context/SimulationContext";
 type WaveOption = "All" | WaveLabel;
 type RegionOption = "All" | RegionLabel;
 type ChannelOption = "All" | ChannelLabel;
-type TabOption = "dashboard" | "dictionary";
+type TabOption = "dashboard" | "dictionary" | "logicflow";
 
 function App() {
   const [activeTab, setActiveTab] = useState<TabOption>("dashboard");
@@ -129,7 +130,7 @@ function App() {
         />
         {/* Tab bar */}
         <div className="px-6 flex gap-0 border-t border-gray-100">
-          {(["dashboard", "dictionary"] as TabOption[]).map((tab) => (
+          {(["dashboard", "dictionary", "logicflow"] as TabOption[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -139,7 +140,7 @@ function App() {
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
             >
-              {tab === "dashboard" ? "Dashboard" : "KPI Dictionary"}
+              {tab === "dashboard" ? "Dashboard" : tab === "dictionary" ? "KPI Dictionary" : "📐 How It Works"}
             </button>
           ))}
         </div>
@@ -193,9 +194,13 @@ function App() {
               <WaveComparison region={region} />
             </section>
           </main>
-        ) : (
+        ) : activeTab === "dictionary" ? (
           <main>
             <KpiDictionary />
+          </main>
+        ) : (
+          <main>
+            <LogicFlow onGoToDashboard={() => setActiveTab("dashboard")} />
           </main>
         )}
       </div>
