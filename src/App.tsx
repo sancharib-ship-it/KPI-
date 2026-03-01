@@ -5,14 +5,17 @@ import { KpiFlow } from "./components/KpiFlow";
 import { KpiTable } from "./components/KpiTable";
 import { KpiDetail } from "./components/KpiDetail";
 import { WaveComparison } from "./components/WaveComparison";
+import { KpiDictionary } from "./components/KpiDictionary";
 import type { WaveLabel, RegionLabel, ChannelLabel } from "./data/mockData";
 import { kpis } from "./data/mockData";
 
 type WaveOption = "All" | WaveLabel;
 type RegionOption = "All" | RegionLabel;
 type ChannelOption = "All" | ChannelLabel;
+type TabOption = "dashboard" | "dictionary";
 
 function App() {
+  const [activeTab, setActiveTab] = useState<TabOption>("dashboard");
   const [wave, setWave] = useState<WaveOption>("All");
   const [region, setRegion] = useState<RegionOption>("Global");
   const [channel, setChannel] = useState<ChannelOption>("All");
@@ -53,59 +56,81 @@ function App() {
           region={region}
           channel={channel}
           search={search}
-          showChannel={isOutputKpi}
+          showChannel={isOutputKpi && activeTab === "dashboard"}
           onWaveChange={setWave}
           onRegionChange={setRegion}
           onChannelChange={setChannel}
           onSearchChange={setSearch}
         />
+        {/* Tab bar */}
+        <div className="px-6 flex gap-0 border-t border-gray-100">
+          {(["dashboard", "dictionary"] as TabOption[]).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-5 py-2.5 text-sm font-semibold border-b-2 transition-colors capitalize
+                ${activeTab === tab
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+            >
+              {tab === "dashboard" ? "Dashboard" : "KPI Dictionary"}
+            </button>
+          ))}
+        </div>
       </header>
 
-      <main className="max-w-screen-2xl mx-auto">
-        {/* Executive Scorecard */}
-        <section className="border-b border-gray-200">
-          <div className="px-6 pt-4">
-            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Executive Scorecard</h2>
-          </div>
-          <Scorecard filters={filters} onSelectKpi={setSelectedKpiId} />
-        </section>
+      {activeTab === "dashboard" ? (
+        <main className="max-w-screen-2xl mx-auto">
+          {/* Executive Scorecard */}
+          <section className="border-b border-gray-200">
+            <div className="px-6 pt-4">
+              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Executive Scorecard</h2>
+            </div>
+            <Scorecard filters={filters} onSelectKpi={setSelectedKpiId} />
+          </section>
 
-        {/* KPI Architecture Flow */}
-        <section className="border-b border-gray-200 bg-white">
-          <KpiFlow
-            filters={filters}
-            selectedKpiId={selectedKpiId}
-            onSelectKpi={setSelectedKpiId}
-          />
-        </section>
-
-        {/* Main Content: Table + Detail */}
-        <div className="flex gap-0 lg:gap-0 flex-col lg:flex-row">
-          <div className="flex-1 min-w-0 border-r border-gray-200">
-            <KpiTable
+          {/* KPI Architecture Flow */}
+          <section className="border-b border-gray-200 bg-white">
+            <KpiFlow
               filters={filters}
-              search={search}
               selectedKpiId={selectedKpiId}
               onSelectKpi={setSelectedKpiId}
             />
-          </div>
+          </section>
 
-          {selectedKpiId && (
-            <div className="w-full lg:w-[420px] flex-shrink-0 px-6 py-4">
-              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">KPI Detail</h2>
-              <KpiDetail
-                kpiId={selectedKpiId}
+          {/* Main Content: Table + Detail */}
+          <div className="flex gap-0 lg:gap-0 flex-col lg:flex-row">
+            <div className="flex-1 min-w-0 border-r border-gray-200">
+              <KpiTable
                 filters={filters}
+                search={search}
+                selectedKpiId={selectedKpiId}
+                onSelectKpi={setSelectedKpiId}
               />
             </div>
-          )}
-        </div>
 
-        {/* Wave Comparison */}
-        <section className="border-t border-gray-200 bg-white">
-          <WaveComparison region={region} />
-        </section>
-      </main>
+            {selectedKpiId && (
+              <div className="w-full lg:w-[420px] flex-shrink-0 px-6 py-4">
+                <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">KPI Detail</h2>
+                <KpiDetail
+                  kpiId={selectedKpiId}
+                  filters={filters}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Wave Comparison */}
+          <section className="border-t border-gray-200 bg-white">
+            <WaveComparison region={region} />
+          </section>
+        </main>
+      ) : (
+        <main>
+          <KpiDictionary />
+        </main>
+      )}
 
       <footer className="text-center py-4 text-xs text-gray-400 border-t border-gray-200 mt-4 bg-white">
         Samsung Galaxy S KPI Dashboard · Marketing Measurement System · Confidential
