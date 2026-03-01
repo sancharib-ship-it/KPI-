@@ -55,7 +55,7 @@ function AccordionSection({
   }, [isOpen]);
 
   return (
-    <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-white">
+    <div className="border border-gray-100 rounded-2xl overflow-hidden shadow-sm bg-white">
       <button
         className="w-full text-left px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
         onClick={() => onToggle(id)}

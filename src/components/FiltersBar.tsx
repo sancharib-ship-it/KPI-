@@ -25,16 +25,16 @@ export const FiltersBar: React.FC<FiltersBarProps> = ({
   wave, region, channel, search, showChannel,
   onWaveChange, onRegionChange, onChannelChange, onSearchChange,
 }) => (
-  <div className="flex flex-wrap items-center gap-4 px-6 py-3 bg-white border-b border-gray-200">
+  <div className="flex flex-wrap items-center gap-4 px-6 py-3 bg-white border-b border-gray-100">
     <div className="flex items-center gap-2">
-      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Wave</label>
-      <div className="flex rounded-md overflow-hidden border border-gray-300">
+      <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Wave</label>
+      <div className="flex gap-1">
         {WAVES.map((w) => (
           <button
             key={w}
             onClick={() => onWaveChange(w)}
-            className={`px-3 py-1.5 text-sm font-medium transition-colors ${
-              wave === w ? "bg-blue-600 text-white" : "bg-white text-gray-600 hover:bg-gray-50"
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              wave === w ? "bg-indigo-50 text-indigo-700" : "bg-white text-gray-500 hover:bg-gray-50 border border-gray-200"
             }`}
           >
             {w}
@@ -44,11 +44,11 @@ export const FiltersBar: React.FC<FiltersBarProps> = ({
     </div>
 
     <div className="flex items-center gap-2">
-      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Region</label>
+      <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Region</label>
       <select
         value={region}
         onChange={(e) => onRegionChange(e.target.value as RegionOption)}
-        className="text-sm border border-gray-300 rounded px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
       >
         {REGIONS.map((r) => <option key={r} value={r}>{r}</option>)}
       </select>
@@ -56,11 +56,11 @@ export const FiltersBar: React.FC<FiltersBarProps> = ({
 
     {showChannel && (
       <div className="flex items-center gap-2">
-        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Channel</label>
+        <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Channel</label>
         <select
           value={channel}
           onChange={(e) => onChannelChange(e.target.value as ChannelOption)}
-          className="text-sm border border-gray-300 rounded px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
         >
           {CHANNELS.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
@@ -68,7 +68,7 @@ export const FiltersBar: React.FC<FiltersBarProps> = ({
     )}
 
     <div className="flex items-center gap-2 ml-auto">
-      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
       </svg>
       <input
@@ -76,7 +76,7 @@ export const FiltersBar: React.FC<FiltersBarProps> = ({
         placeholder="Search KPIs…"
         value={search}
         onChange={(e) => onSearchChange(e.target.value)}
-        className="text-sm border border-gray-300 rounded px-3 py-1.5 w-48 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="text-sm border border-gray-200 rounded-lg px-3 py-2 w-48 focus:outline-none focus:ring-2 focus:ring-indigo-400 placeholder-gray-300"
       />
     </div>
   </div>

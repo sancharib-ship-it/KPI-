@@ -50,18 +50,18 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
+    <div className="min-h-screen bg-slate-50 font-sans">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="px-6 py-4 flex items-center justify-between">
+      <header className="bg-white shadow-sm border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white text-sm font-bold">S</span>
+              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                <span className="text-white text-sm font-semibold">S</span>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Samsung Galaxy S — Global Launch</h1>
-                <p className="text-xs text-gray-500">Marketing KPI Dashboard · Wave 1: Launch · Wave 2: Reinforcement</p>
+                <h1 className="text-xl font-semibold text-gray-900">Samsung Galaxy S — Global Launch</h1>
+                <p className="text-xs text-gray-400">Marketing KPI Dashboard · Wave 1: Launch · Wave 2: Reinforcement</p>
               </div>
             </div>
           </div>
@@ -69,36 +69,36 @@ function App() {
             {simEnabled && (
               <button
                 onClick={() => { resetOverrides(); }}
-                className="px-3 py-1.5 text-xs font-semibold rounded-md bg-amber-100 text-amber-800 border border-amber-300 hover:bg-amber-200 transition-colors"
+                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-colors"
               >
                 ↩ Reset to Defaults
               </button>
             )}
             <button
               onClick={handleToggleSim}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-md border transition-colors ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors ${
                 simEnabled
-                  ? "bg-purple-600 text-white border-purple-600 hover:bg-purple-700"
-                  : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+                  ? "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100"
+                  : "bg-white text-gray-500 border-gray-200 hover:bg-gray-50"
               }`}
             >
               🔬 Simulation Mode
             </button>
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Input → Output → Outcome → Impact</span>
+            <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Input → Output → Outcome → Impact</span>
           </div>
         </div>
 
         {/* Simulation Mode Banner */}
         {simEnabled && (
-          <div className="px-6 py-2 bg-purple-50 border-b border-purple-200 flex items-center gap-2 flex-wrap">
+          <div className="max-w-7xl mx-auto px-6 py-2 bg-purple-50 border-b border-purple-100 flex items-center gap-2 flex-wrap">
             <span className="text-purple-700 text-xs font-semibold">🔬 Simulation Mode Active</span>
-            <span className="text-purple-500 text-xs">— Edit Actual and Target values to explore scenarios in real-time.</span>
+            <span className="text-purple-400 text-xs">— Edit Actual and Target values to explore scenarios in real-time.</span>
             <div className="ml-auto flex items-center gap-2">
               <span className="text-purple-600 text-xs font-semibold">🔗 Linked Cascade:</span>
               <button
                 onClick={() => setCascadeEnabled(!cascadeEnabled)}
                 className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ${
-                  cascadeEnabled ? "bg-indigo-500" : "bg-gray-300"
+                  cascadeEnabled ? "bg-indigo-400" : "bg-gray-300"
                 }`}
                 title={cascadeEnabled ? "Cascade ON — downstream KPIs auto-adjust" : "Cascade OFF — manual edits only"}
               >
@@ -129,15 +129,15 @@ function App() {
           onSearchChange={setSearch}
         />
         {/* Tab bar */}
-        <div className="px-6 flex gap-0 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto px-6 flex gap-2 border-t border-gray-100 pt-2 pb-1">
           {(["dashboard", "dictionary", "logicflow"] as TabOption[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-5 py-2.5 text-sm font-semibold border-b-2 transition-colors capitalize
+              className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors capitalize
                 ${activeTab === tab
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  ? "bg-indigo-50 text-indigo-700"
+                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                 }`}
             >
               {tab === "dashboard" ? "Dashboard" : tab === "dictionary" ? "KPI Dictionary" : "📐 How It Works"}
@@ -147,19 +147,17 @@ function App() {
       </header>
 
       {/* Simulation mode outer border */}
-      <div className={simEnabled ? "ring-4 ring-purple-400 ring-inset" : ""}>
+      <div className={simEnabled ? "ring-2 ring-purple-200 ring-inset" : ""}>
         {activeTab === "dashboard" ? (
-          <main className="max-w-screen-2xl mx-auto">
+          <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
             {/* Executive Scorecard */}
-            <section className="border-b border-gray-200">
-              <div className="px-6 pt-4">
-                <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Executive Scorecard</h2>
-              </div>
+            <section>
+              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Executive Scorecard</h2>
               <Scorecard filters={filters} onSelectKpi={setSelectedKpiId} />
             </section>
 
             {/* KPI Architecture Flow */}
-            <section className="border-b border-gray-200 bg-white">
+            <section>
               <KpiFlow
                 filters={filters}
                 selectedKpiId={selectedKpiId}
@@ -168,8 +166,8 @@ function App() {
             </section>
 
             {/* Main Content: Table + Detail */}
-            <div className="flex gap-0 lg:gap-0 flex-col lg:flex-row">
-              <div className="flex-1 min-w-0 border-r border-gray-200">
+            <div className="flex gap-6 flex-col lg:flex-row">
+              <div className="flex-1 min-w-0">
                 <KpiTable
                   filters={filters}
                   search={search}
@@ -179,7 +177,7 @@ function App() {
               </div>
 
               {selectedKpiId && (
-                <div className="w-full lg:w-[420px] flex-shrink-0 px-6 py-4">
+                <div className="w-full lg:w-[420px] flex-shrink-0">
                   <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">KPI Detail</h2>
                   <KpiDetail
                     kpiId={selectedKpiId}
@@ -190,7 +188,7 @@ function App() {
             </div>
 
             {/* Wave Comparison */}
-            <section className="border-t border-gray-200 bg-white">
+            <section>
               <WaveComparison region={region} />
             </section>
           </main>
@@ -205,7 +203,7 @@ function App() {
         )}
       </div>
 
-      <footer className="text-center py-4 text-xs text-gray-400 border-t border-gray-200 mt-4 bg-white">
+      <footer className="text-center py-4 text-xs text-gray-400 border-t border-gray-100 mt-4 bg-white">
         Samsung Galaxy S KPI Dashboard · Marketing Measurement System · Confidential
       </footer>
     </div>

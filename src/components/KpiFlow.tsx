@@ -4,17 +4,17 @@ import { latestActual, computeStatus, type Filters, type StatusType } from "../l
 import { useSimulation } from "../context/SimulationContext";
 
 const STATUS_BG: Record<StatusType, string> = {
-  "On Track": "bg-green-500 border-green-600",
-  "Watch": "bg-yellow-400 border-yellow-500",
-  "Off Track": "bg-red-500 border-red-600",
-  "No Data": "bg-gray-300 border-gray-400",
+  "On Track": "bg-emerald-50 border-emerald-200",
+  "Watch": "bg-amber-50 border-amber-200",
+  "Off Track": "bg-red-50 border-red-200",
+  "No Data": "bg-gray-100 border-gray-200",
 };
 
 const STATUS_TEXT: Record<StatusType, string> = {
-  "On Track": "text-white",
-  "Watch": "text-yellow-900",
-  "Off Track": "text-white",
-  "No Data": "text-gray-600",
+  "On Track": "text-emerald-700",
+  "Watch": "text-amber-700",
+  "Off Track": "text-red-700",
+  "No Data": "text-gray-500",
 };
 
 const FLOW_NODES = [
@@ -40,11 +40,11 @@ export const KpiFlow: React.FC<KpiFlowProps> = ({ filters, selectedKpiId, onSele
   const { enabled: simEnabled, cascadeEnabled, cascadedKpiIds, overrides } = useSimulation();
 
   return (
-    <div className="px-6 py-4">
-      <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+      <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
         KPI Architecture Flow
       </h2>
-      <div className="flex items-center flex-wrap gap-1 overflow-x-auto pb-2">
+      <div className="flex items-center flex-wrap gap-3 overflow-x-auto pb-2">
         {FLOW_NODES.map((node, idx) => {
           const kpi = kpis.find((k) => k.id === node.id);
           if (!kpi) return null;
@@ -61,32 +61,32 @@ export const KpiFlow: React.FC<KpiFlowProps> = ({ filters, selectedKpiId, onSele
               <button
                 onClick={() => onSelectKpi(node.id)}
                 title={isCascaded ? `Auto-cascaded value` : undefined}
-                className={`flex flex-col items-center px-3 py-2 rounded-lg border-2 text-center min-w-[90px] transition-all ${STATUS_BG[status]} ${STATUS_TEXT[status]} ${
-                  isSelected ? "ring-4 ring-blue-400 ring-offset-1 scale-105" : "hover:scale-105 hover:shadow-md"
-                } ${isCascaded ? "ring-2 ring-indigo-400 ring-offset-1 animate-pulse" : ""}`}
+                className={`flex flex-col items-center px-3 py-2 rounded-xl border text-center min-w-[100px] h-[56px] transition-all ${STATUS_BG[status]} ${STATUS_TEXT[status]} ${
+                  isSelected ? "ring-2 ring-indigo-300 ring-offset-1 scale-105" : "hover:scale-105 hover:shadow-sm"
+                } ${isCascaded ? "ring-2 ring-indigo-300 ring-offset-1 animate-pulse" : ""}`}
               >
-                <span className="text-xs font-bold leading-tight">{node.label}</span>
-                <span className="text-[10px] opacity-75 mt-0.5">{node.sub}</span>
+                <span className="text-xs font-semibold leading-tight">{node.label}</span>
+                <span className="text-[10px] opacity-60 mt-0.5">{node.sub}</span>
                 {isCascaded && <span className="text-[10px] mt-0.5">🔗</span>}
               </button>
               {idx < FLOW_NODES.length - 1 && (
-                <svg className="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <svg className="w-4 h-4 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
                 </svg>
               )}
             </React.Fragment>
           );
         })}
       </div>
-      <div className="flex items-center gap-4 mt-2">
+      <div className="flex items-center gap-4 mt-3">
         {(["On Track", "Watch", "Off Track", "No Data"] as StatusType[]).map((s) => (
-          <span key={s} className="flex items-center gap-1 text-xs text-gray-500">
-            <span className={`w-3 h-3 rounded ${STATUS_BG[s]}`} />
+          <span key={s} className="flex items-center gap-1.5 text-xs text-gray-500">
+            <span className={`w-2.5 h-2.5 rounded-sm inline-block ${STATUS_BG[s]}`} />
             {s}
           </span>
         ))}
         {simEnabled && cascadeEnabled && (
-          <span className="flex items-center gap-1 text-xs text-indigo-600">
+          <span className="flex items-center gap-1 text-xs text-indigo-500">
             <span className="text-[10px]">🔗</span>
             Auto-cascaded
           </span>

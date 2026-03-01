@@ -6,15 +6,15 @@ import { formatValue } from "../lib/kpiLogic";
 const LAYER_ORDER: KpiLayer[] = ["Input", "Output", "Outcome", "Impact"];
 
 const LAYER_COLORS: Record<KpiLayer, { bg: string; text: string; border: string; header: string }> = {
-  Input:   { bg: "bg-gray-100",   text: "text-gray-700",   border: "border-gray-300",  header: "bg-gray-200 text-gray-800" },
-  Output:  { bg: "bg-blue-100",   text: "text-blue-700",   border: "border-blue-300",  header: "bg-blue-100 text-blue-800" },
-  Outcome: { bg: "bg-purple-100", text: "text-purple-700", border: "border-purple-300",header: "bg-purple-100 text-purple-800" },
-  Impact:  { bg: "bg-green-100",  text: "text-green-700",  border: "border-green-300", header: "bg-green-100 text-green-800" },
+  Input:   { bg: "bg-gray-100",   text: "text-gray-700",   border: "border-gray-200",  header: "bg-gray-50 text-gray-700" },
+  Output:  { bg: "bg-blue-50",    text: "text-blue-600",   border: "border-blue-100",  header: "bg-blue-50 text-blue-700" },
+  Outcome: { bg: "bg-purple-50",  text: "text-purple-700", border: "border-purple-100",header: "bg-purple-50 text-purple-800" },
+  Impact:  { bg: "bg-emerald-50", text: "text-emerald-700",border: "border-emerald-100",header: "bg-emerald-50 text-emerald-800" },
 };
 
 const TYPE_COLORS: Record<KpiType, { bg: string; text: string }> = {
-  Formative:  { bg: "bg-teal-100",   text: "text-teal-700" },
-  Summative:  { bg: "bg-orange-100", text: "text-orange-700" },
+  Formative:  { bg: "bg-teal-50",    text: "text-teal-700" },
+  Summative:  { bg: "bg-orange-50",  text: "text-orange-700" },
 };
 
 const CADENCE_LABEL: Record<KpiCadence, string> = {
@@ -46,7 +46,7 @@ export const KpiDictionary: React.FC = () => {
   }, [filtered]);
 
   return (
-    <div className="max-w-screen-xl mx-auto px-6 py-6 space-y-6">
+    <div className="max-w-screen-xl mx-auto px-6 py-6 space-y-8">
       {/* Search & filter bar */}
       <div className="flex flex-wrap gap-3 items-center">
         <input
@@ -54,7 +54,7 @@ export const KpiDictionary: React.FC = () => {
           placeholder="Search KPIs…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 w-64"
+          className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 w-64"
         />
 
         {/* Layer chips */}
@@ -63,12 +63,12 @@ export const KpiDictionary: React.FC = () => {
             <button
               key={l}
               onClick={() => setLayerFilter(l)}
-              className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors
+              className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors
                 ${layerFilter === l
                   ? l === "All"
-                    ? "bg-gray-700 text-white border-gray-700"
+                    ? "bg-gray-600 text-white border-gray-600"
                     : `${LAYER_COLORS[l as KpiLayer].bg} ${LAYER_COLORS[l as KpiLayer].text} ${LAYER_COLORS[l as KpiLayer].border}`
-                  : "bg-white text-gray-500 border-gray-200 hover:border-gray-400"
+                  : "bg-white text-gray-400 border-gray-200 hover:border-gray-300"
                 }`}
             >
               {l}
@@ -82,12 +82,12 @@ export const KpiDictionary: React.FC = () => {
             <button
               key={t}
               onClick={() => setTypeFilter(t)}
-              className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors
+              className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors
                 ${typeFilter === t
                   ? t === "All"
-                    ? "bg-gray-700 text-white border-gray-700"
+                    ? "bg-gray-600 text-white border-gray-600"
                     : `${TYPE_COLORS[t as KpiType].bg} ${TYPE_COLORS[t as KpiType].text} border-current`
-                  : "bg-white text-gray-500 border-gray-200 hover:border-gray-400"
+                  : "bg-white text-gray-400 border-gray-200 hover:border-gray-300"
                 }`}
             >
               {t}
@@ -108,28 +108,28 @@ export const KpiDictionary: React.FC = () => {
         return (
           <section key={layer}>
             {/* Layer header */}
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-lg mb-3 ${lc.header}`}>
-              <span className="text-sm font-bold uppercase tracking-wide">{layer}</span>
-              <span className="text-xs font-medium opacity-70">({items.length} KPI{items.length !== 1 ? "s" : ""})</span>
+            <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl mb-4 border ${lc.header} ${lc.border}`}>
+              <span className="text-sm font-semibold uppercase tracking-wide">{layer}</span>
+              <span className="text-xs font-medium opacity-60">({items.length} KPI{items.length !== 1 ? "s" : ""})</span>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               {items.map((kpi) => {
                 const tc = TYPE_COLORS[kpi.type];
                 return (
                   <div
                     key={kpi.id}
-                    className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 space-y-3"
+                    className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-3"
                   >
                     {/* Card header */}
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div>
-                        <h3 className="text-base font-bold text-gray-900">{kpi.name}</h3>
+                        <h3 className="text-base font-semibold text-gray-900">{kpi.name}</h3>
                         <span className="text-xs text-gray-400 font-mono">{kpi.id}</span>
                       </div>
                       <div className="flex flex-wrap gap-1.5">
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${lc.bg} ${lc.text}`}>{kpi.layer}</span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${tc.bg} ${tc.text}`}>{kpi.type}</span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${lc.bg} ${lc.text}`}>{kpi.layer}</span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${tc.bg} ${tc.text}`}>{kpi.type}</span>
                       </div>
                     </div>
 
@@ -139,31 +139,31 @@ export const KpiDictionary: React.FC = () => {
                     {/* Metadata grid */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                       <div>
-                        <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-0.5">Cadence</div>
+                        <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-0.5">Cadence</div>
                         <div className="text-sm text-gray-700">{CADENCE_LABEL[kpi.cadence]}</div>
                       </div>
                       <div>
-                        <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-0.5">Unit</div>
+                        <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-0.5">Unit</div>
                         <div className="text-sm text-gray-700">{kpi.unit}</div>
                       </div>
                       <div>
-                        <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-0.5">Target</div>
+                        <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-0.5">Target</div>
                         <div className="text-sm text-gray-700">{formatValue(kpi.target, kpi)}</div>
                       </div>
                       <div>
-                        <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-0.5">Higher is Better</div>
-                        <div className={`text-sm font-semibold ${kpi.higherIsBetter ? "text-green-600" : "text-red-500"}`}>
+                        <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-0.5">Higher is Better</div>
+                        <div className={`text-sm font-medium ${kpi.higherIsBetter ? "text-emerald-600" : "text-red-500"}`}>
                           {kpi.higherIsBetter ? "Yes ↑" : "No ↓"}
                         </div>
                       </div>
                       <div className="col-span-2">
-                        <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-0.5">Source</div>
+                        <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-0.5">Source</div>
                         <div className="text-sm text-gray-700">{kpi.source}</div>
                       </div>
                     </div>
 
                     {/* Decision rule */}
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5 text-xs text-amber-800">
+                    <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-2.5 text-xs text-amber-800">
                       <span className="font-semibold">Decision Rule: </span>{kpi.decisionRule}
                     </div>
                   </div>
