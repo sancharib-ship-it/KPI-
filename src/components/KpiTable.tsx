@@ -34,7 +34,16 @@ export const KpiTable: React.FC<KpiTableProps> = ({ filters, search, selectedKpi
   const [layerFilter, setLayerFilter] = useState<string>("All");
   const [typeFilter, setTypeFilter] = useState<string>("All");
   const [expandedRules, setExpandedRules] = useState<Set<string>>(new Set());
-  const { enabled: simEnabled, overrides, setOverride } = useSimulation();
+  const { enabled: simEnabled, overrides, setOverride, cascadeEnabled, cascadedKpiIds, triggerCascade } = useSimulation();
+
+  // Pre-compute all base actuals for cascade propagation
+  const allBaseActuals = useMemo(() => {
+    const map: Record<string, number | null> = {};
+    for (const k of kpis) {
+      map[k.id] = latestActual(k.id, filters);
+    }
+    return map;
+  }, [filters]);
 
   const rows = useMemo(() => {
     return kpis
@@ -116,13 +125,19 @@ export const KpiTable: React.FC<KpiTableProps> = ({ filters, search, selectedKpi
                 const isExpanded = expandedRules.has(kpi.id);
                 const isSelected = selectedKpiId === kpi.id;
                 const step = stepForKpi(kpi);
+                const isCascaded = simEnabled && cascadeEnabled && cascadedKpiIds.has(kpi.id);
                 return (
                   <tr
                     key={kpi.id}
-                    className={`hover:bg-blue-50 cursor-pointer transition-colors ${isSelected ? "bg-blue-50 border-l-2 border-l-blue-500" : ""}`}
+                    className={`hover:bg-blue-50 cursor-pointer transition-colors ${isSelected ? "bg-blue-50 border-l-2 border-l-blue-500" : ""} ${isCascaded ? "bg-indigo-50" : ""}`}
                     onClick={() => onSelectKpi(kpi.id)}
                   >
-                    <td className="px-3 py-2.5 font-medium text-blue-700 hover:underline whitespace-nowrap">{kpi.name}</td>
+                    <td className="px-3 py-2.5 font-medium text-blue-700 hover:underline whitespace-nowrap">
+                      {kpi.name}
+                      {isCascaded && (
+                        <span title="Auto-calculated from upstream KPI change" className="ml-1 text-indigo-500 cursor-help">🔗</span>
+                      )}
+                    </td>
                     <td className="px-3 py-2.5 text-gray-600">{kpi.layer}</td>
                     <td className="px-3 py-2.5 text-gray-600">{kpi.type}</td>
                     <td className="px-3 py-2.5 text-gray-500 text-xs">{kpi.cadence}</td>
@@ -144,16 +159,31 @@ export const KpiTable: React.FC<KpiTableProps> = ({ filters, search, selectedKpi
                     </td>
                     <td className="px-3 py-2.5 text-gray-900 font-semibold font-mono" onClick={(e) => simEnabled && e.stopPropagation()}>
                       {simEnabled ? (
-                        <input
-                          type="number"
-                          step={step}
-                          value={actual ?? ""}
-                          onChange={(e) => {
-                            const v = parseFloat(e.target.value);
-                            if (!isNaN(v)) setOverride(kpi.id, { actual: v });
-                          }}
-                          className="w-24 px-1.5 py-0.5 text-xs border border-purple-300 rounded bg-purple-50 font-mono focus:outline-none focus:ring-1 focus:ring-purple-500"
-                        />
+                        <div className="relative inline-flex items-center gap-1">
+                          <input
+                            type="number"
+                            step={step}
+                            value={actual ?? ""}
+                            onChange={(e) => {
+                              const v = parseFloat(e.target.value);
+                              if (!isNaN(v)) {
+                                const prev = actual ?? 0;
+                                setOverride(kpi.id, { actual: v });
+                                if (cascadeEnabled && prev !== 0) {
+                                  triggerCascade(kpi.id, v, prev, allBaseActuals);
+                                }
+                              }
+                            }}
+                            className={`w-24 px-1.5 py-0.5 text-xs border rounded font-mono focus:outline-none focus:ring-1 ${
+                              isCascaded
+                                ? "border-indigo-300 bg-indigo-50 focus:ring-indigo-500"
+                                : "border-purple-300 bg-purple-50 focus:ring-purple-500"
+                            }`}
+                          />
+                          {isCascaded && (
+                            <span title="Auto-calculated from upstream KPI change" className="text-indigo-400 text-[10px]">🔗</span>
+                          )}
+                        </div>
                       ) : (
                         formatValue(actual, kpi)
                       )}
