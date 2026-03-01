@@ -6,7 +6,7 @@ import {
 import { kpis } from "../data/mockData";
 import {
   getTrendData, getChannelBreakdown, getRegionBreakdown,
-  formatValue, computeStatus, latestActual, type Filters, type StatusType,
+  formatValue, computeStatus, latestActual, generateInterpretation, type Filters, type StatusType,
 } from "../lib/kpiLogic";
 import type { KpiConfig } from "../data/mockData";
 
@@ -44,6 +44,7 @@ export const KpiDetail: React.FC<KpiDetailProps> = ({ kpiId, filters }) => {
   const breakdownKey = hasChannelData ? "channel" : "region";
 
   const tooltipFormatter = makeFormatter(kpi);
+  const { interpretation, implication } = generateInterpretation(kpiId, actual, filters);
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-5">
@@ -72,6 +73,15 @@ export const KpiDetail: React.FC<KpiDetailProps> = ({ kpiId, filters }) => {
       {/* Decision Rule */}
       <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800">
         <span className="font-semibold">Decision Rule: </span>{kpi.decisionRule}
+      </div>
+
+      {/* Interpretation */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-2">
+        <div className="text-sm font-bold text-blue-900">📊 Interpretation</div>
+        <p className={`text-sm ${actual === null ? "text-gray-500 italic" : "text-blue-900"}`}>{interpretation}</p>
+        {implication && (
+          <p className="text-sm text-blue-700 italic bg-white/60 rounded px-2 py-1">{implication}</p>
+        )}
       </div>
 
       {/* Trend Chart */}
