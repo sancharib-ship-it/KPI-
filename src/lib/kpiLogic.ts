@@ -1,4 +1,4 @@
-import { kpis, observations, type KpiConfig, type Observation, type WaveLabel, type RegionLabel, type ChannelLabel } from "../data/mockData";
+import { kpis, observations, type KpiConfig, type KpiLayer, type Observation, type WaveLabel, type RegionLabel, type ChannelLabel } from "../data/mockData";
 
 export interface Filters {
   wave?: WaveLabel | "All";
@@ -103,4 +103,66 @@ export function getRegionBreakdown(kpiId: string, filters: Filters): Array<{ reg
     if (val !== null) result.push({ region, value: val });
   }
   return result;
+}
+
+const NEXT_LAYER: Record<KpiLayer, string> = {
+  Input: "Output",
+  Output: "Outcome",
+  Outcome: "Impact",
+  Impact: "business results / long-term brand equity",
+};
+
+export function generateInterpretation(
+  kpiId: string,
+  actual: number | null,
+  filters: Filters,
+): { interpretation: string; implication: string } {
+  const kpi = getKpi(kpiId);
+  const resolvedActual = actual ?? latestActual(kpiId, filters);
+  if (!kpi || resolvedActual === null) {
+    return {
+      interpretation: "No data available for the current filter selection.",
+      implication: "",
+    };
+  }
+
+  const status = computeStatus(resolvedActual, kpi.target, kpi.higherIsBetter);
+  const absGap = Math.abs(resolvedActual - kpi.target);
+
+  const formatGapVal = (v: number): string => {
+    const f = v.toFixed(kpi.decimals);
+    if (kpi.unit === "%") return `${f}%`;
+    if (kpi.unit === "pts") return `${f} pts`;
+    return f;
+  };
+
+  let gapDesc: string;
+  if (status === "On Track") {
+    gapDesc = kpi.higherIsBetter
+      ? `exceeding benchmark by ${formatGapVal(absGap)}`
+      : `within target by ${formatGapVal(absGap)}`;
+  } else if (status === "Watch") {
+    gapDesc = kpi.higherIsBetter
+      ? `performance is ${formatGapVal(absGap)} below benchmark`
+      : `performance is ${formatGapVal(absGap)} above threshold`;
+  } else {
+    const achievementStr = kpi.target !== 0 ? `${Math.round((resolvedActual / kpi.target) * 100)}%` : "N/A";
+    gapDesc = kpi.higherIsBetter
+      ? `significantly below target at ${achievementStr} achievement`
+      : `significantly over target at ${achievementStr} of budget`;
+  }
+
+  const interpretation = `${kpi.name} is at ${formatValue(resolvedActual, kpi)} vs ${formatValue(kpi.target, kpi)} target — ${gapDesc}, classified as ${status}.`;
+
+  const nextLayer = NEXT_LAYER[kpi.layer];
+  let implication: string;
+  if (status === "On Track") {
+    implication = "Performance is meeting expectations. Continue current strategy and monitor for sustained delivery.";
+  } else if (status === "Watch") {
+    implication = `Performance is approaching risk threshold. ${kpi.decisionRule} If not corrected within the current cadence cycle, downstream ${nextLayer} KPIs may be affected.`;
+  } else {
+    implication = `Immediate action required. ${kpi.decisionRule} Downstream ${nextLayer} KPIs are at risk — escalate to campaign leadership.`;
+  }
+
+  return { interpretation, implication };
 }
