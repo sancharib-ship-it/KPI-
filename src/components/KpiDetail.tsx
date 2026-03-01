@@ -72,9 +72,9 @@ export const KpiDetail: React.FC<KpiDetailProps> = ({ kpiId, filters }) => {
   const step = stepForKpi(kpi);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between gap-4">
         <div>
           <h3 className="text-2xl font-semibold text-gray-900">{kpi.name}</h3>
           <div className="flex items-center gap-2 mt-2 flex-wrap">
@@ -139,7 +139,7 @@ export const KpiDetail: React.FC<KpiDetailProps> = ({ kpiId, filters }) => {
       </div>
 
       {/* Meta */}
-      <div className="grid grid-cols-2 gap-3 text-xs text-gray-500">
+      <div className="grid grid-cols-2 gap-3 text-xs text-gray-500 py-3 border-y border-gray-100">
         <div><span className="font-medium text-gray-600">Source:</span> {kpi.source}</div>
         <div><span className="font-medium text-gray-600">Unit:</span> {kpi.unit}</div>
       </div>

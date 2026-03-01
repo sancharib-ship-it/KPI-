@@ -63,7 +63,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({ filters, onSelectKpi }) =>
             tabIndex={0}
             onClick={() => onSelectKpi(kpi.id)}
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onSelectKpi(kpi.id); }}
-            className={`bg-white rounded-2xl shadow-sm border border-gray-100 border-l-4 ${STATUS_BORDER[status]} p-6 text-left hover:shadow-md transition-all group cursor-pointer`}
+            className={`bg-white rounded-2xl shadow-sm border border-gray-100 border-l-4 ${STATUS_BORDER[status]} p-6 text-left hover:shadow-md transition-all group cursor-pointer min-h-[180px] flex flex-col`}
           >
             <div className="flex items-start justify-between mb-3">
               <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">{kpi.layer}</span>
@@ -87,7 +87,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({ filters, onSelectKpi }) =>
                 />
               </div>
             ) : (
-              <div className="text-3xl font-bold text-gray-900 mb-1">
+              <div className="text-2xl font-bold text-gray-900 mb-1">
                 {formatValue(actual, kpi)}
               </div>
             )}

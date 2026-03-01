@@ -89,8 +89,8 @@ export const KpiTable: React.FC<KpiTableProps> = ({ filters, search, selectedKpi
   }, [filters, search, sortKey, layerFilter, typeFilter, simEnabled, overrides]);
 
   return (
-    <div>
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">KPI Control Table</h2>
         <div className="flex items-center gap-2">
           <select
@@ -126,7 +126,7 @@ export const KpiTable: React.FC<KpiTableProps> = ({ filters, search, selectedKpi
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
                 {["KPI", "Layer", "Type", "Cadence", "Target", "Actual", "Gap", "Status", "Source", "Decision Rule"].map((h) => (
-                  <th key={h} className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">{h}</th>
+                  <th key={h} className="px-3 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -144,7 +144,7 @@ export const KpiTable: React.FC<KpiTableProps> = ({ filters, search, selectedKpi
                 return (
                   <tr
                     key={kpi.id}
-                    className={`cursor-pointer transition-colors border-b border-gray-100 ${
+                    className={`cursor-pointer transition-colors border-b border-gray-100 align-middle ${
                       isSelected ? "bg-indigo-50 border-l-2 border-l-indigo-400" :
                       isCascaded ? "bg-indigo-50" :
                       isEven ? "bg-white hover:bg-blue-50/40" : "bg-gray-50/50 hover:bg-blue-50/40"

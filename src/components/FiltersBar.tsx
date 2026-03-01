@@ -25,7 +25,7 @@ export const FiltersBar: React.FC<FiltersBarProps> = ({
   wave, region, channel, search, showChannel,
   onWaveChange, onRegionChange, onChannelChange, onSearchChange,
 }) => (
-  <div className="flex flex-wrap items-center gap-4 px-6 py-3 bg-white border-b border-gray-100">
+  <div className="max-w-7xl mx-auto flex flex-wrap items-center gap-4 px-6 py-3 bg-white border-b border-gray-100">
     <div className="flex items-center gap-2">
       <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Wave</label>
       <div className="flex gap-1">
@@ -34,7 +34,7 @@ export const FiltersBar: React.FC<FiltersBarProps> = ({
             key={w}
             onClick={() => onWaveChange(w)}
             className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              wave === w ? "bg-indigo-50 text-indigo-700" : "bg-white text-gray-500 hover:bg-gray-50 border border-gray-200"
+              wave === w ? "bg-indigo-50 text-indigo-700 border border-transparent" : "bg-white text-gray-500 hover:bg-gray-50 border border-gray-200"
             }`}
           >
             {w}

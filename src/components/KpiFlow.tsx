@@ -61,7 +61,7 @@ export const KpiFlow: React.FC<KpiFlowProps> = ({ filters, selectedKpiId, onSele
               <button
                 onClick={() => onSelectKpi(node.id)}
                 title={isCascaded ? `Auto-cascaded value` : undefined}
-                className={`flex flex-col items-center px-3 py-2 rounded-xl border text-center min-w-[100px] h-[56px] transition-all ${STATUS_BG[status]} ${STATUS_TEXT[status]} ${
+                className={`flex flex-col items-center px-3 py-2 rounded-xl border text-center min-w-[100px] min-h-[56px] transition-all ${STATUS_BG[status]} ${STATUS_TEXT[status]} ${
                   isSelected ? "ring-2 ring-indigo-300 ring-offset-1 scale-105" : "hover:scale-105 hover:shadow-sm"
                 } ${isCascaded ? "ring-2 ring-indigo-300 ring-offset-1 animate-pulse" : ""}`}
               >
@@ -70,15 +70,17 @@ export const KpiFlow: React.FC<KpiFlowProps> = ({ filters, selectedKpiId, onSele
                 {isCascaded && <span className="text-[10px] mt-0.5">🔗</span>}
               </button>
               {idx < FLOW_NODES.length - 1 && (
-                <svg className="w-4 h-4 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
-                </svg>
+                <div className="flex items-center self-center">
+                  <svg className="w-4 h-4 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
               )}
             </React.Fragment>
           );
         })}
       </div>
-      <div className="flex items-center gap-4 mt-3">
+      <div className="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100">
         {(["On Track", "Watch", "Off Track", "No Data"] as StatusType[]).map((s) => (
           <span key={s} className="flex items-center gap-1.5 text-xs text-gray-500">
             <span className={`w-2.5 h-2.5 rounded-sm inline-block ${STATUS_BG[s]}`} />
